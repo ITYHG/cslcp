@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhisen.cslcp.dao.PortMapper">
+    
+    <resultMap type="Port" id="PortResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="ename"    column="eName"    />
+        <result property="countryId"    column="countryId"    />
+        <result property="countryName"    column="countryName"    />
+        <result property="provinceId"    column="provinceId"    />
+        <result property="provinceName"    column="provinceName"    />
+        <result property="cityId"    column="cityId"    />
+        <result property="cityName"    column="cityName"    />
+        <result property="outlay"    column="outlay"    />
+        <result property="createdate"    column="createDate"    />
+        <result property="createuserid"    column="createUserId"    />
+        <result property="createusername"    column="createUserName"    />
+        <result property="modifydate"    column="modifyDate"    />
+        <result property="modifyuserid"    column="modifyUserId"    />
+        <result property="modifyusername"    column="modifyUserName"    />
+        <result property="isdel"    column="isDel"    />
+        <result property="version"    column="version"    />
+    </resultMap>
+    
+    <resultMap type="map" id="countryMap">
+        <result property="countryId"    column="countryId"    />
+        <result property="countryName"    column="countryName"    />
+    </resultMap>
+    
+    <resultMap type="map" id="provinceMap">
+        <result property="provinceId"    column="provinceId"    />
+        <result property="provinceName"    column="provinceName"    />
+    </resultMap>
+
+    <resultMap type="map" id="cityMap">
+        <result property="cityId"    column="cityId"    />
+        <result property="cityName"    column="cityName"    />
+    </resultMap>
+
+    <sql id="selectPortVo">
+        SELECT
+		  A.id               AS  id,
+		  A.name             AS  name,
+		  A.eName            AS  eName, 
+		  A.countryId        AS  countryId,
+		  B.name             AS  countryName,
+		  A.provinceId       AS  provinceId,
+		  C.name             AS  provinceName,
+		  A.cityId           AS  cityId,
+		  D.name             AS  cityName,
+		  A.outlay           AS  outlay,
+		  A.createDate       AS  createDate,
+		  A.createUserId     AS  createUserId,
+		  A.createUserName   AS  createUserName,
+		  A.modifyDate       AS  modifyDate,
+		  A.modifyUserId     AS  modifyUserId,
+		  A.modifyUserName   AS  modifyUserName,
+		  A.isDel            AS  isDel,
+		  A.version          AS  version
+		FROM port A
+		LEFT JOIN address B ON A.countryId = B.id  
+		LEFT JOIN address C ON A.provinceId = C.id  
+		LEFT JOIN address D ON A.cityId = D.id  
+    </sql>
+    
+    <select id="selectCountryList"  resultMap="countryMap">
+        SELECT
+		  id     AS  countryId,
+		  name   AS  countryName
+		FROM address
+		WHERE pid is null
+    </select>
+    
+    <select id="selectProvinceList" parameterType="String" resultMap="provinceMap">
+        SELECT
+		  id     AS  provinceId,
+		  name   AS  provinceName
+		FROM address
+		WHERE pid = #{id}
+    </select>
+    
+    <select id="selectCityList" parameterType="String" resultMap="cityMap">
+        SELECT
+		  id     AS  cityId,
+		  name   AS  cityName
+		FROM address
+		WHERE pid  = #{id}
+    </select>
+
+
+
+    <select id="selectPortList" parameterType="Port" resultMap="PortResult">
+        <include refid="selectPortVo"/>
+        <where>  
+            AND A.isDel = 0
+            <if test="name != null  and name != ''"> and A.name like concat('%', #{name}, '%')</if>
+            <if test="ename != null  and ename != ''"> and A.eName like concat('%', #{ename}, '%')</if>
+            <if test="provinceName != null  and provinceName != ''"> and C.name like concat('%', #{provinceName}, '%')</if>
+            <if test="countryId != null "> and A.countryId = #{countryId}</if>
+            <if test="provinceId != null "> and A.provinceId = #{provinceId}</if>
+            <if test="cityId != null "> and A.cityId = #{cityId}</if>
+            <if test="outlay != null "> and A.outlay = #{outlay}</if>
+        </where>
+        ORDER BY A.modifyDate DESC
+		<if test="excelFlag != 1 "> LIMIT #{limit}, #{pageSize}; </if>
+    </select>
+    
+     <select id="selectPortPageNumber" parameterType="Port" resultType="int">
+		SELECT
+		  COUNT(0)
+		FROM port  A
+		LEFT JOIN address B ON A.countryId = B.id  
+		LEFT JOIN address C ON A.countryId = C.id  
+		LEFT JOIN address D ON A.countryId = D.id  
+		<where>  
+		    AND A.isDel = 0 
+            <if test="name != null  and name != ''"> and A.name like concat('%', #{name}, '%')</if>
+            <if test="ename != null  and ename != ''"> and A.eName like concat('%', #{ename}, '%')</if>
+            <if test="provinceName != null  and provinceName != ''"> and C.name like concat('%', #{provinceName}, '%')</if>
+            <if test="countryId != null "> and A.countryId = #{countryId}</if>
+            <if test="provinceId != null "> and A.provinceId = #{provinceId}</if>
+            <if test="cityId != null "> and A.cityId = #{cityId}</if>
+            <if test="outlay != null "> and A.outlay = #{outlay}</if>
+        </where>
+	</select>
+    
+    <select id="selectPortById" parameterType="Long" resultMap="PortResult">
+        <include refid="selectPortVo"/>
+        where id = #{id}
+    </select>
+    
+    <select id="selectPortSameNumber" parameterType="Port"
+		resultType="int">
+		SELECT
+		  COUNT(0)
+		FROM port
+		WHERE ( name = #{name} or eName = #{ename} )
+		<if test="id != null  and id != '' "> AND id <![CDATA[ <> ]]> #{id} </if>
+		AND isDel = 0
+	</select>
+        
+    <insert id="insertPort" parameterType="Port" useGeneratedKeys="true" keyProperty="id">
+        insert into port
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">name,</if>
+            <if test="ename != null">eName,</if>
+            <if test="countryId != null">countryId,</if>
+            <if test="provinceId != null">provinceId,</if>
+            <if test="cityId != null">cityId,</if>
+            <if test="outlay != null">outlay,</if>
+            createDate,
+            <if test="createuserid != null">createUserId,</if>
+            <if test="createusername != null">createUserName,</if>
+            modifyDate,
+            <if test="modifyuserid != null">modifyUserId,</if>
+            <if test="modifyusername != null">modifyUserName,</if>
+            isDel,
+            version
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">#{name},</if>
+            <if test="ename != null">#{ename},</if>
+            <if test="countryId != null">#{countryId},</if>
+            <if test="provinceId != null">#{provinceId},</if>
+            <if test="cityId != null">#{cityId},</if>
+            <if test="outlay != null">#{outlay},</if>
+            NOW(),
+            <if test="createuserid != null">#{createuserid},</if>
+            <if test="createusername != null">#{createusername},</if>
+            NOW(),
+            <if test="modifyuserid != null">#{modifyuserid},</if>
+            <if test="modifyusername != null">#{modifyusername},</if>
+            0,
+            0
+         </trim>
+    </insert>
+
+    <update id="updatePort" parameterType="Port">
+        update port
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="ename != null">eName = #{ename},</if>
+            <if test="countryId != null">countryId = #{countryId},</if>
+            <if test="provinceId != null">provinceId = #{provinceId},</if>
+            <if test="cityId != null">cityId = #{cityId},</if>
+            <if test="outlay != null">outlay = #{outlay},</if>
+            modifyDate = NOW(),
+            <if test="modifyuserid != null">modifyUserId = #{modifyuserid},</if>
+            <if test="modifyusername != null">modifyUserName = #{modifyusername},</if>
+            version = version + 1
+        </trim>
+        where id = #{id}
+    </update>
+
+    
+    <update id="deletePortByIds" parameterType="String">
+        update port
+        SET    isdel = 1 ,
+               version = version + 1
+        where id in 
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+</mapper>

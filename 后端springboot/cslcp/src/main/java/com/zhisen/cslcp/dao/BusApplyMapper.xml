@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhisen.cslcp.dao.BusApplyMapper">
+    
+    <resultMap type="BusApply" id="BusApplyResult">
+        <result property="id"    column="id"    />
+        <result property="type"    column="type"    />
+         <result property="files"    column="files"    />
+        <result property="companyid"    column="companyId"    />
+        <result property="companyName"    column="companyName"    />
+        <result property="applyaccount"    column="applyAccount"    />
+        <result property="applyusername"    column="applyUserName"    />
+        <result property="applydate"    column="applyDate"    />
+        <result property="auditaccount"    column="auditAccount"    />
+        <result property="auditusername"    column="auditUserName"    />
+        <result property="auditdate"    column="auditDate"    />
+        <result property="auditresult"    column="auditResult"    />
+        <result property="auditstatus"    column="auditStatus"    />
+        <result property="auditopinion"    column="auditOpinion"    />
+        <result property="version"    column="version"    />
+    </resultMap>
+
+    <sql id="selectBusApplyVo">
+        select 	A.id	AS id, 
+        		A.type	AS type,
+        		A.files	AS files,
+        	 	A.companyId AS companyId,
+         		B.name AS companyName,
+          		A.applyAccount AS applyAccount,
+           		A.applyUserName AS applyUserName, 
+           		A.applyDate AS applyDate,
+            	A.auditAccount AS auditAccount, 
+            	A.auditUserName AS auditUserName,
+             	A.auditDate AS auditDate, 
+             	A.auditResult AS auditResult, 
+             	A.auditStatus AS auditStatus, 
+             	A.auditOpinion AS auditOpinion,
+              	A.version  AS version
+              	from busapply A
+              	LEFT JOIN company B ON A.companyId=B.id
+    </sql>
+
+    <select id="selectBusApplyList" parameterType="BusApply" resultMap="BusApplyResult">
+        <include refid="selectBusApplyVo"/>
+        <where>  
+            <if test="type != null and  type != ''  "> and A.type = #{type}</if>
+            <if test="companyid != null and companyid != ''"> and A.companyId = #{companyid}</if>
+            <if test="companyName != null and companyName != ''"> and B.name LIKE  concat('%', #{companyName}, '%')</if>
+            <if test="applyaccount != null  and applyaccount != ''"> and A.applyAccount = #{applyaccount}</if>
+            <if test="applyusername != null  and applyusername != ''"> and A.applyUserName like concat('%', #{applyusername}, '%')</if>
+            <if test="applydate != null and applydate != '' "> and A.applyDate = #{applydate}</if>
+            <if test="auditaccount != null  and auditaccount != ''"> and A.auditAccount = #{auditaccount}</if>
+            <if test="auditusername != null  and auditusername != ''"> and A.auditUserName like concat('%', #{auditusername}, '%')</if>
+            <if test="auditdate != null and auditdate != '' "> and A.auditDate = #{auditdate}</if>
+            <if test="auditresult != null  and auditresult != '' "> and A.auditResult = #{auditresult}</if>
+            <if test="auditstatus != null and auditstatus != '' "> and A.auditStatus = #{auditstatus}</if>
+            <if test="auditopinion != null  and auditopinion != ''"> and A.auditOpinion = #{auditopinion}</if>
+            <if test="version != null and version != '' "> and A.version = #{version}</if>
+            <if test="id != null and id != ''"> and A.id  <![CDATA[ <> ]]> #{id}</if>
+        </where>
+        ORDER BY A.updateTime DESC
+		<if test="excelFlag != 1 "> LIMIT #{limit}, #{pageSize}; </if>
+		
+    </select>
+    
+    
+    <select id="selectAuditNumber" parameterType="BusApply"
+		resultType="int">
+		SELECT
+		  COUNT(0)
+		FROM busapply
+		WHERE type = #{type}
+		AND auditstatus = 1 
+		AND companyId = #{companyid}
+		<if test="id != null  and id != '' "> AND id <![CDATA[ <> ]]> #{id} </if>
+	</select>
+	
+	<select id="selectAuditresultNumber" parameterType="BusApply"
+		resultType="int">
+		SELECT
+		  COUNT(0)
+		FROM busapply
+		WHERE type = #{type}
+		AND auditresult = 2 
+		AND companyId = #{companyid}
+		<if test="id != null  and id != '' "> AND id <![CDATA[ <> ]]> #{id} </if>
+	</select>
+    
+    
+    <select id="selectBusApplyPageNumber" parameterType="BusApply" resultType="int">
+		SELECT
+		  COUNT(0)
+		FROM busapply   A
+        LEFT JOIN company B ON A.companyId=B.id
+		<where>  
+            <if test="type != null and  type != '' "> and A.type = #{type}</if>
+            <if test="companyid != null and companyid != ''"> and A.companyId = #{companyid}</if>
+            <if test="companyName != null and companyName != ''"> and B.name LIKE  concat('%', #{companyName}, '%')</if>
+            <if test="applyaccount != null  and applyaccount != ''"> and A.applyAccount = #{applyaccount}</if>
+            <if test="applyusername != null  and applyusername != ''"> and A.applyUserName like concat('%', #{applyusername}, '%')</if>
+            <if test="applydate != null and applydate != '' "> and A.applyDate = #{applydate}</if>
+            <if test="auditaccount != null  and auditaccount != ''"> and A.auditAccount = #{auditaccount}</if>
+            <if test="auditusername != null  and auditusername != ''"> and A.auditUserName like concat('%', #{auditusername}, '%')</if>
+            <if test="auditdate != null and auditdate != '' "> and A.auditDate = #{auditdate}</if>
+            <if test="auditresult != null  and auditresult != '' "> and A.auditResult = #{auditresult}</if>
+            <if test="auditstatus != null and auditstatus != '' "> and A.auditStatus = #{auditstatus}</if>
+            <if test="auditopinion != null  and auditopinion != ''"> and A.auditOpinion = #{auditopinion}</if>
+            <if test="version != null and version != '' "> and A.version = #{version}</if>
+            <if test="id != null and id != ''"> and A.id  <![CDATA[ <> ]]> #{id}</if>
+        </where>
+	</select>
+    
+    <select id="selectBusApplyById" parameterType="String" resultMap="BusApplyResult">
+        <include refid="selectBusApplyVo"/>
+        where A.id = #{id}
+    </select>
+        
+    <insert id="insertBusApply" parameterType="BusApply" useGeneratedKeys="true" keyProperty="id">
+        insert into busapply 
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="type != null and type != ''">type,</if>
+            <if test="companyid != null and companyid != '' ">companyId,</if>
+            <if test="files != null and files != ''">files,</if>
+            <if test="applyaccount != null and applyaccount != '' ">applyAccount,</if>
+            <if test="applyusername != null and applyusername != '' ">applyUserName,</if>
+            applyDate,
+            <if test="auditaccount != null and auditaccount != '' ">auditAccount,</if>
+            <if test="auditusername != null and auditusername != '' ">auditUserName,</if>
+            <if test="auditdate != null and auditdate != '' ">auditDate,</if>
+            auditResult,
+            auditStatus,
+            <if test="auditopinion != null and auditopinion != '' ">auditOpinion,</if>
+            updateTime,
+            version
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="type != null and type != '' ">#{type},</if>
+            <if test="companyid != null and companyid != '' ">#{companyid},</if>
+            <if test="files != null and files != ''">#{files},</if>
+            <if test="applyaccount != null and applyaccount != '' ">#{applyaccount},</if>
+            <if test="applyusername != null and applyusername != '' ">#{applyusername},</if>
+            NOW(),
+            <if test="auditaccount != null and auditaccount != '' ">#{auditaccount},</if>
+            <if test="auditusername != null and auditusername != '' ">#{auditusername},</if>
+            <if test="auditdate != null and auditdate != '' ">#{auditdate},</if>
+            1,
+            1,
+            <if test="auditopinion != null and auditopinion != '' ">#{auditopinion},</if>
+            NOW(),
+            0,
+         </trim>
+    </insert>
+
+    <update id="updateBusApply" parameterType="BusApply">
+        update busapply
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="type != null and type != '' ">type = #{type},</if>
+            <if test="files != null and files != ''">files = #{files},</if>
+            <if test="applyaccount != null and applyaccount != '' ">applyAccount = #{applyaccount},</if>
+            <if test="applyusername != null and applyusername != '' ">applyUserName = #{applyusername},</if>
+            <if test="applydate != null and applydate != '' ">applyDate = #{applydate},</if>
+            <if test="auditaccount != null and auditaccount != '' ">auditAccount = #{auditaccount},</if>
+            <if test="auditusername != null and auditusername != '' ">auditUserName = #{auditusername},</if>
+            <if test="auditresult != null and auditresult != ''">auditDate = NOW(),</if>
+            <if test="auditresult != null and auditresult != '' ">auditResult = #{auditresult},</if>
+            <if test="auditstatus != null and auditstatus != ''">auditStatus = #{auditstatus},</if>
+            <if test="auditopinion != null and auditopinion != ''">auditOpinion = #{auditopinion},</if>
+            updateTime = NOW(),
+            version =version +1
+        </trim>
+        WHERE id = #{id}
+              AND version =#{version}
+    </update>
+
+    <delete id="deleteBusApplyById" parameterType="Long">
+        delete from busapply where id = #{id}
+    </delete>
+
+
+    <select id="selectAuditStatusNumber" parameterType="String"
+		resultType="int">
+		SELECT
+		  COUNT(0)
+		FROM busapply
+		WHERE auditstatus = 2 
+		AND id in 
+		<foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+	</select>
+	
+    <delete id="deleteBusApplyByIds" parameterType="String">
+        delete from busapply where id in 
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
