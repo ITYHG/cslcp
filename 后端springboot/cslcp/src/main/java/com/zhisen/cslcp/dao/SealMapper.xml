@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhisen.cslcp.dao.SealMapper">
+    
+    <resultMap type="Seal" id="SealResult">
+        <result property="id"    column="id"    />
+        <result property="companyId"    column="companyId"    />
+        <result property="companyName"    column="companyName"    />
+        <result property="name"    column="name"    />
+        <result property="file"    column="file"    />
+        <result property="uploadday"    column="uploadDay"    />
+        <result property="isenable"    column="isEnable"    />
+        <result property="sealtype"    column="sealType"    />
+        <result property="confirmstatus"    column="confirmStatus"    />
+        <result property="comments"    column="comments"    />
+        <result property="createuseraccount"    column="createUserAccount"    />
+        <result property="createusername"    column="createUserName"    />
+        <result property="modifieruseraccount"    column="modifierUserAccount"    />
+        <result property="modifierusername"    column="modifierUserName"    />
+        <result property="modifytime"    column="modifyTime"    />
+        <result property="version"    column="version"    />
+    </resultMap>
+
+    <sql id="selectSealVo">
+        SELECT  A.id        AS id, 
+		        A.companyId AS companyId, 
+		        B.name      AS companyName,
+		        A.name      AS name, 
+		        A.file      AS file, 
+		        A.uploadDay AS uploadDay, 
+		        A.isEnable  AS isEnable, 
+		        A.sealType  AS sealType,
+		        A.confirmStatus AS confirmStatus, 
+		        A.comments  AS comments, 
+		        A.createUserAccount AS createUserAccount, 
+		        A.createUserName AS createUserName, 
+		        A.modifierUserAccount, 
+		        A.modifierUserName AS modifierUserAccount, 
+		        A.modifyTime AS modifyTime, 
+		        A.version AS version
+        FROM seal A
+        LEFT JOIN company B ON A.companyId = B.id
+    </sql>
+
+    <select id="selectSealList" parameterType="Seal" resultMap="SealResult">
+        <include refid="selectSealVo"/>
+        <where>  
+            <if test="companyId != null "> and A.companyId = #{companyId}</if>
+            <if test="name != null  and name != ''"> and A.name LIKE CONCAT('%', #{name}, '%')</if>
+            <if test="companyName != null  and companyName != ''"> and B.name LIKE CONCAT('%', #{companyName}, '%')</if>
+            <if test="file != null  and file != ''"> and A.file = #{file}</if>
+            <if test="uploadday != null and uploadday != '' "> and A.uploadDay = #{uploadday}</if>
+            <if test="isenable != null and isenable != ''"> and A.isEnable = #{isenable}</if>
+            <if test="sealtype != null  and sealtype != ''  "> and A.sealType = #{sealtype}</if>
+            <if test="confirmstatus != null  and confirmstatus != ''   "> and A.confirmStatus = #{confirmstatus}</if>
+        </where>
+        ORDER BY A.modifytime DESC
+		<if test="excelFlag != 1 "> LIMIT #{limit}, #{pageSize}; </if>
+    </select>
+    
+    <select id="selectSealPageNumber" parameterType="Seal" resultType="int">
+		SELECT
+		  COUNT(0)
+		FROM seal A
+        LEFT JOIN company B ON A.companyId = B.id
+		<where>  
+            <if test="companyId != null "> AND A.companyId = #{companyId}</if>
+            <if test="name != null  and name != ''"> AND A.name LIKE CONCAT('%', #{name}, '%')</if>
+            <if test="companyName != null  and companyName != ''"> AND B.name LIKE CONCAT('%', #{companyName}, '%')</if>
+            <if test="file != null  and file != ''"> AND A.file = #{file}</if>
+            <if test="uploadday != null and uploadday != '' "> AND A.uploadDay = #{uploadday}</if>
+            <if test="isenable != null and isenable != ''"> AND A.isEnable = #{isenable}</if>
+            <if test="sealtype != null  and sealtype != ''  "> AND A.sealType = #{sealtype}</if>
+            <if test="confirmstatus != null  and confirmstatus != ''   "> AND A.confirmStatus = #{confirmstatus}</if>
+        </where>
+	</select>
+	
+	
+	<select id="selectSealSameNumber" parameterType="Seal" resultType="int">
+		SELECT
+		  COUNT(0)
+		FROM seal A
+        LEFT JOIN company B ON A.companyId = B.id
+		WHERE
+            A.name = #{name}
+            AND A.companyId = #{companyId}
+            <if test="id != null  and id != '' "> AND A.id <![CDATA[ <> ]]> #{id} </if>
+	</select>
+	
+	<select id="selectSealTypeNumber" parameterType="Seal" resultType="int">
+		SELECT
+		  COUNT(0)
+		FROM seal A
+		WHERE
+            A.isEnable = 1 
+            AND A.sealType = #{sealtype}
+            AND A.companyId = #{companyId}
+            AND A.id <![CDATA[ <> ]]> #{id}
+	</select>
+	
+	<select id="selectSealConfNumber"  parameterType="String" resultType="int">
+		SELECT
+		  COUNT(0)
+		FROM seal 
+		WHERE confirmstatus <![CDATA[ > ]]> 2
+		AND id in 
+		<foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+	</select>
+    
+    <select id="selectSealById" parameterType="Long" resultMap="SealResult">
+        <include refid="selectSealVo"/>
+        WHERE id = #{id}
+    </select>
+        
+    <insert id="insertSeal" parameterType="Seal" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO seal
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="companyId != null">companyId,</if>
+            <if test="name != null">name,</if>
+            <if test="file != null">file,</if>
+            uploadDay,
+            isEnable,
+            <if test="sealtype != null">sealType,</if>
+            confirmStatus,
+            <if test="createuseraccount != null">createUserAccount,</if>
+            <if test="createusername != null">createUserName,</if>
+            createTime,
+            <if test="modifieruseraccount != null">modifierUserAccount,</if>
+            <if test="modifierusername != null">modifierUserName,</if>
+            modifyTime,
+            version,
+         </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="companyId != null">#{companyId},</if>
+            <if test="name != null">#{name},</if>
+            <if test="file != null">#{file},</if>
+            NOW(),
+            2,
+            <if test="sealtype != null">#{sealtype},</if>
+            1,
+            <if test="createuseraccount != null">#{createuseraccount},</if>
+            <if test="createusername != null">#{createusername},</if>
+            NOW(),
+            <if test="modifieruseraccount != null">#{modifieruseraccount},</if>
+            <if test="modifierusername != null">#{modifierusername},</if>
+            NOW(),
+            0
+         </trim>
+    </insert>
+
+    <update id="updateSeal" parameterType="Seal">
+        UPDATE seal
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="companyId != null">companyId = #{companyId},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="file != null">file = #{file},</if>
+            <if test="uploadday != null">uploadDay = #{uploadday},</if>
+            <if test="isenable != null">isEnable = #{isenable},</if>
+            <if test="sealtype != null">sealType = #{sealtype},</if>
+            <if test="confirmstatus != null ">confirmStatus = #{confirmstatus},</if>
+            <if test="comments != null and comments != '' ">comments = #{comments},</if>
+            <if test="modifieruseraccount != null">modifierUserAccount = #{modifieruseraccount},</if>
+            <if test="modifierusername != null">modifierUserName = #{modifierusername},</if>
+            modifyTime = NOW(),
+            version = version + 1 
+        </trim>
+        WHERE id = #{id}
+        AND version = #{version}
+    </update>
+
+
+    <delete id="deleteSealByIds" parameterType="String">
+        DELETE FROM seal WHERE id IN 
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

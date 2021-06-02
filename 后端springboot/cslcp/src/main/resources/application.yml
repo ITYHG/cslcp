@@ -1,0 +1,20 @@
+server:
+  port: 8081
+
+spring:
+  resources:
+    static-locations: file:D:\file
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://172.16.122.79:3306/cslcp?serverTimezone=GMT%2B8&allowMultiQueries=true&characterEncoding=UTF-8
+    username: root
+    password: root
+  mvc:
+    static-path-pattern: "/static/**"
+
+mybatis:
+  mapper-locations: com/zhisen/cslcp/dao/*Mapper.xml
+  type-aliases-package: com.zhisen.cslcp.dao.entity
+logging:
+  level:
+    com.zhisen.cslcp.dao: error

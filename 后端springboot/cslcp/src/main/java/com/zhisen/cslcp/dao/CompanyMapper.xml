@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhisen.cslcp.dao.CompanyMapper">
+    
+    <resultMap type="Company" id="CompanyResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="companytypeid"    column="companyTypeId"    />
+        <result property="companyTypeName"    column="companyTypeName"    />
+        <result property="membertype"    column="memberType"    />
+        <result property="memberTypeName"    column="memberTypeName"    />
+        <result property="level"    column="level"    />
+         <result property="levelName"    column="levelName"    />
+        <result property="countryId"    column="countryId"    />
+        <result property="countryName"    column="countryName"    />
+        <result property="provinceId"    column="provinceId"    />
+        <result property="provinceName"    column="provinceName"    />
+        <result property="cityId"    column="cityId"    />
+        <result property="cityName"    column="cityName"    />
+        <result property="address"    column="address"    />
+        <result property="creditcode"    column="creditCode"    />
+        <result property="cerificateattachment1"    column="cerificateAttachment1"    />
+        <result property="cerificateattachment2"    column="cerificateAttachment2"    />
+        <result property="phone"    column="phone"    />
+        <result property="email"    column="email"    />
+        <result property="adminaccountid"    column="adminAccountId"    />
+        <result property="status"    column="status"    />
+        <result property="issendbl"    column="isSendBl"    />
+        <result property="isreceive"    column="isReceive"    />
+        <result property="isenableseal"    column="isEnableSeal"    />
+        <result property="createdate"    column="createDate"    />
+        <result property="createuserid"    column="createUserId"    />
+        <result property="createusername"    column="createUserName"    />
+        <result property="modifydate"    column="modifyDate"    />
+        <result property="modifyuserid"    column="modifyUserId"    />
+        <result property="modifyusername"    column="modifyUserName"    />
+        <result property="isdel"    column="isDel"    />
+        <result property="version"    column="version"    />
+       	<result property="file"    column="file"    />
+       	<result property="Sealfile1"    column="Sealfile1"/>
+       	<result property="Sealfile2"    column="Sealfile2"/>
+    </resultMap>
+
+    <sql id="selectCompanyVo">
+      SELECT  A.id               AS  id, 
+		        A.name             AS  name, 
+		        A.companyTypeId    AS  companyTypeId, 
+		        F.name             AS  companyTypeName,
+		        A.memberType       AS  memberType, 
+		        E.name             AS  memberTypeName,
+		        A.level            AS  level, 
+		        A.countryId        AS  countryId,
+				B.name             AS  countryName,
+				A.provinceId       AS  provinceId,
+				C.name             AS  provinceName,
+				A.cityId           AS  cityId,
+				D.name             AS  cityName, 
+		        A.address          AS  address, 
+		        A.creditCode       AS  creditCode, 
+		        A.cerificateAttachment1  AS  cerificateAttachment1, 
+		        A.cerificateAttachment2  AS  cerificateAttachment2, 
+		        A.email                  AS  email, 
+		        A.phone                  AS  phone,
+		        A.adminAccountId         AS  adminAccountId,
+				A.status AS status,
+				A.isSendBl AS isSendBl,
+				A.isReceive AS isReceive,
+				A.isEnableSeal AS isEnableSeal,
+		        A.createDate             AS  createDate, 
+		        A.createUserId           As  createUserId, 
+		        A.createUserName         AS  createUserName, 
+		        A.modifyDate             AS  modifyDate, 
+		        A.modifyUserId           AS  modifyUserId, 
+		        A.modifyUserName         AS  modifyUserName, 
+		        A.isDel                  AS  isDel, 
+		        A.version                AS  version
+        FROM company A
+		LEFT JOIN address B ON A.countryId = B.id  
+		LEFT JOIN address C ON A.provinceId = C.id  
+		LEFT JOIN address D ON A.cityId = D.id  
+		LEFT JOIN membertype E ON A.memberType = E.id 
+		LEFT JOIN companytype F ON A.companyTypeId = F.id 
+
+    </sql>
+    
+    <sql id="selectCompanyDetail">
+				SELECT
+				A.id AS id,
+				A.name AS name,
+				A.companyTypeId AS companyTypeId,
+				F.name AS companyTypeName,
+				A.memberType AS memberType,
+				E.name AS memberTypeName,
+				A.level AS level,
+				I.name	AS levelName,
+				A.countryId AS countryId,
+				B.name AS countryName,
+				A.provinceId AS provinceId,
+				C.name AS provinceName,
+				A.cityId AS cityId,
+				D.name AS cityName,
+				A.address AS address,
+				A.creditCode AS creditCode,
+				A.cerificateAttachment1 AS cerificateAttachment1,
+				A.cerificateAttachment2 AS cerificateAttachment2,
+				A.email AS email,
+				A.phone AS phone,
+				A.adminAccountId AS adminAccountId,
+				A.status AS status,
+				A.isSendBl AS isSendBl,
+				A.isReceive AS isReceive,
+				A.isEnableSeal AS isEnableSeal,
+				A.createDate AS createDate,
+				A.createUserId AS createUserId,
+				A.createUserName AS createUserName,
+				A.modifyDate AS modifyDate,
+				A.modifyUserId AS modifyUserId,
+				A.modifyUserName AS modifyUserName,
+				A.isDel AS isDel,
+				A.version AS version,
+				G.file AS file,
+				H.file AS Sealfile,
+				H.isEnable AS isEnable,
+				H.sealType AS sealType,
+				( SELECT H.file FROM seal H RIGHT JOIN company A ON A.id = H.companyId  WHERE H.isEnable = 1 AND H.sealType = 1 AND H.companyId=#{id}) AS Sealfile1,
+				( SELECT H.file FROM seal H RIGHT JOIN company A ON A.id = H.companyId  WHERE H.isEnable = 1 AND H.sealType = 2 AND H.companyId=#{id}) AS Sealfile2 
+			FROM
+				company A
+				LEFT JOIN address B ON A.countryId = B.id
+				LEFT JOIN address C ON A.provinceId = C.id
+				LEFT JOIN address D ON A.cityId = D.id
+				LEFT JOIN membertype E ON A.memberType = E.id
+				LEFT JOIN companytype F ON A.companyTypeId = F.id
+				LEFT JOIN bllogo G ON A.id = G.companyId
+				LEFT JOIN seal H ON A.id = H.companyId 
+				LEFT JOIN cuslevel I ON I.id = A.level 
+    </sql>
+	
+	<sql id="CompanyExcelVo">
+        SELECT  A.id               AS  id, 
+		        A.name             AS  name, 
+		        A.companyTypeId    AS  companyTypeId, 
+		        F.name             AS  companyTypeName,
+		        A.memberType       AS  memberType, 
+		        E.name             AS  memberTypeName,
+		        A.level            AS  level, 
+		        A.countryId        AS  countryId,
+				B.name             AS  countryName,
+				A.provinceId       AS  provinceId,
+				C.name             AS  provinceName,
+				A.cityId           AS  cityId,
+				D.name             AS  cityName, 
+		        A.address          AS  address, 
+		        A.creditCode       AS  creditCode, 
+		        A.cerificateAttachment1  AS  cerificateAttachment1, 
+		        A.cerificateAttachment2  AS  cerificateAttachment2, 
+		        A.email                  AS  email, 
+		        A.phone                  AS  phone,
+		        A.adminAccountId         AS  adminAccountId,
+				CASE 	A.status
+						WHEN '1' THEN
+						'待审核'
+						WHEN '2' THEN
+						'未通过'
+						WHEN '9' THEN
+						'通过'
+						ELSE
+						'其它'
+				END 	status,
+				CASE 	A.isSendBl
+						WHEN '1' THEN
+						'通过'
+						WHEN '2' THEN
+						'未通过'
+						ELSE
+						'其它'
+				END 	isSendBl,
+				CASE 	A.isReceive
+						WHEN '1' THEN
+						'通过'
+						WHEN '2' THEN
+						'未通过'
+						ELSE
+						'其它'
+				END 	isReceive,
+				CASE 	A.isEnableSeal
+						WHEN '1' THEN
+						'通过'
+						WHEN '2' THEN
+						'未通过'
+						ELSE
+						'其它'
+				END 	isEnableSeal, 
+		        A.createDate             AS  createDate, 
+		        A.createUserId           As  createUserId, 
+		        A.createUserName         AS  createUserName, 
+		        A.modifyDate             AS  modifyDate, 
+		        A.modifyUserId           AS  modifyUserId, 
+		        A.modifyUserName         AS  modifyUserName, 
+		        A.isDel                  AS  isDel, 
+		        A.version                AS  version
+        FROM company A
+		LEFT JOIN address B ON A.countryId = B.id  
+		LEFT JOIN address C ON A.provinceId = C.id  
+		LEFT JOIN address D ON A.cityId = D.id  
+		LEFT JOIN membertype E ON A.memberType = E.id 
+		LEFT JOIN companytype F ON A.companyTypeId = F.id 
+
+    </sql>
+	
+	<select id="selectCompanyExcel" parameterType="Company" resultMap="CompanyResult">
+        <include refid="CompanyExcelVo"/>
+        <where>  
+            A.isDel = 0
+            <if test="name != null  and name != ''"> AND A.name LIKE CONCAT('%', #{name}, '%')</if>
+            <if test="companytypeid != null and companytypeid != ''"> AND A.companyTypeId = #{companytypeid}</if>
+            <if test="membertype != null and membertype != ''"> AND A.memberType = #{membertype}</if>
+            <if test="level != null  and level != ''"> AND A.level = #{level},</if>
+            <if test="countryName != null  and countryName != ''"> AND B.name LIKE CONCAT('%', #{countryName}, '%')</if>
+            <if test="provinceId != null  and provinceId != ''"> AND A.provinceId = #{provinceId}</if>
+            <if test="provinceName != null  and provinceName != ''"> AND C.name  LIKE CONCAT('%', #{provinceName}, '%')</if> 
+            <if test="cityId != null  and cityId != ''"> AND A.cityId = #{cityId}</if>
+            <if test="cityName != null  and cityName != ''"> AND D.name  LIKE CONCAT('%', #{cityName}, '%')</if>
+            <if test="address != null  and address != ''"> AND A.address = #{address}</if>
+            <if test="creditcode != null  and creditcode != ''"> AND A.creditCode = #{creditcode}</if>
+            <if test="cerificateattachment1 != null  and cerificateattachment1 != ''"> AND A.cerificateAttachment1 = #{cerificateattachment1}</if>
+            <if test="cerificateattachment2 != null  and cerificateattachment2 != ''"> AND A.cerificateAttachment2 = #{cerificateattachment2}</if>
+            <if test="email != null  and email != ''"> AND A.email = #{email}</if>
+            <if test="adminaccountid != null "> AND A.adminAccountId = #{adminaccountid}</if>
+            <if test="status != null and status != ''"> AND A.status = #{status}</if>
+            <if test="issendbl != null and issendbl != ''"> AND A.isSendBl = #{issendbl}</if>
+            <if test="isreceive != null and isreceive != ''"> AND A.isReceive = #{isreceive}</if>
+            <if test="isenableseal != null and isenableseal!= ''"> AND A.isEnableSeal = #{isenableseal}</if>
+        </where>
+        ORDER BY A.modifyDate DESC
+    </select>
+	
+	<select id="selectCompanyDetail" parameterType="Company" resultMap="CompanyResult">
+	<include refid="selectCompanyDetail"/>
+	WHERE
+	A.id = #{id} 
+	GROUP BY A.id
+	</select>
+
+	
+    <select id="selectCompanyList" parameterType="Company" resultMap="CompanyResult">
+        <include refid="selectCompanyVo"/>
+        <where>  
+            A.isDel = 0
+            <if test="name != null  and name != ''"> AND A.name LIKE CONCAT('%', #{name}, '%')</if>
+            <if test="companytypeid != null and companytypeid != ''"> AND A.companyTypeId = #{companytypeid}</if>
+            <if test="membertype != null and membertype != ''"> AND A.memberType = #{membertype}</if>
+            <if test="level != null  and level != ''"> AND A.level = #{level},</if>
+            <if test="countryName != null  and countryName != ''"> AND B.name  LIKE CONCAT('%', #{countryName}, '%')</if>
+            <if test="provinceId != null  and provinceId != ''"> AND A.provinceId = #{provinceId}</if>
+            <if test="provinceName != null  and provinceName != ''"> AND C.name  LIKE CONCAT('%', #{provinceName}, '%')</if> 
+            <if test="cityId != null  and cityId != ''"> AND A.cityId = #{cityId}</if>
+            <if test="cityName != null  and cityName != ''"> AND D.name LIKE CONCAT('%', #{cityName}, '%')</if>
+            <if test="address != null  and address != ''"> AND A.address = #{address}</if>
+            <if test="creditcode != null  and creditcode != ''"> AND A.creditCode = #{creditcode}</if>
+            <if test="cerificateattachment1 != null  and cerificateattachment1 != ''"> AND A.cerificateAttachment1 = #{cerificateattachment1}</if>
+            <if test="cerificateattachment2 != null  and cerificateattachment2 != ''"> AND A.cerificateAttachment2 = #{cerificateattachment2}</if>
+            <if test="email != null  and email != ''"> AND A.email = #{email}</if>
+            <if test="adminaccountid != null "> AND A.adminAccountId = #{adminaccountid}</if>
+            <if test="status != null and status != ''"> AND A.status = #{status}</if>
+            <if test="issendbl != null  and issendbl != ''"> AND A.isSendBl = #{issendbl}</if>
+            <if test="isreceive != null and isreceive != ''"> AND A.isReceive = #{isreceive}</if>
+            <if test="isenableseal != null and isenableseal != '' "> AND A.isEnableSeal = #{isenableseal}</if>
+        </where>
+        ORDER BY A.modifyDate DESC
+		<if test="excelFlag != 1 "> LIMIT #{limit}, #{pageSize}; </if>
+    </select>
+    
+    <select id="selectCompanyPageNumber" parameterType="Company" resultType="int">
+		SELECT
+		  COUNT(0)
+		FROM company A
+		LEFT JOIN address B ON A.countryId = B.id  
+		LEFT JOIN address C ON A.provinceId = C.id  
+		LEFT JOIN address D ON A.cityId = D.id  
+		<where>  
+            A.isDel = 0 
+            <if test="name != null  and name != ''"> AND A.name LIKE CONCAT('%', #{name}, '%')</if>
+            <if test="companytypeid != null and companytypeid != ''"> AND A.companyTypeId = #{companytypeid}</if>
+            <if test="membertype != null and membertype != ''"> AND A.memberType = #{membertype}</if>
+            <if test="level != null  and level != ''"> AND A.level = #{level}</if>
+            <if test="countryName != null  and countryName != ''"> AND B.name  LIKE CONCAT('%', #{countryName}, '%')</if>
+            <if test="provinceId != null  and provinceId != ''"> AND A.provinceId = #{provinceId}</if>
+            <if test="provinceName != null  and provinceName != ''"> AND C.name LIKE CONCAT('%', #{provinceName}, '%')</if> 
+            <if test="cityId != null  and cityId != ''"> AND A.cityId = #{cityId}</if>
+            <if test="cityName != null  and cityName != ''"> AND D.name  LIKE CONCAT('%', #{cityName}, '%')</if>
+            <if test="address != null  and address != ''"> AND A.address = #{address}</if>
+            <if test="creditcode != null  and creditcode != ''"> AND A.creditCode = #{creditcode}</if>
+            <if test="cerificateattachment1 != null  and cerificateattachment1 != ''"> AND A.cerificateAttachment1 = #{cerificateattachment1}</if>
+            <if test="cerificateattachment2 != null  and cerificateattachment2 != ''"> AND A.cerificateAttachment2 = #{cerificateattachment2}</if>
+            <if test="email != null  and email != ''"> AND A.email = #{email}</if>
+            <if test="adminaccountid != null "> AND A.adminAccountId = #{adminaccountid}</if>
+            <if test="status != null and status != ''"> AND A.status = #{status}</if>
+            <if test="issendbl != null and issendbl != ''"> AND A.isSendBl = #{issendbl}</if>
+            <if test="isreceive != null and isreceive != ''"> AND A.isReceive = #{isreceive}</if>
+            <if test="isenableseal != null and isenableseal"> AND A.isEnableSeal = #{isenableseal}</if>
+        </where>
+	</select>
+	
+        <insert id="insertCompany" parameterType="Company" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO company
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">name,</if>
+            <if test="companytypeid != null">companyTypeId,</if>
+            <if test="membertype != null">memberType,</if>
+            <if test="level != null">level,</if>
+            <if test="provinceid != null">provinceId,</if>
+            <if test="cityid != null">cityId,</if>
+            <if test="address != null">address,</if>
+            <if test="creditcode != null">creditCode,</if>
+            <if test="cerificateattachment1 != null">cerificateAttachment1,</if>
+            <if test="cerificateattachment2 != null">cerificateAttachment2,</if>
+            <if test="email != null">email,</if>
+            <if test="adminaccountid != null">adminAccountId,</if>
+            <if test="status != null">status,</if>
+            <if test="issendbl != null">isSendBl,</if>
+            <if test="isreceive != null">isReceive,</if>
+            <if test="isenableseal != null">isEnableSeal,</if>
+            <if test="createdate != null">createDate,</if>
+            <if test="createuserid != null">createUserId,</if>
+            <if test="createusername != null">createUserName,</if>
+            <if test="modifydate != null">modifyDate,</if>
+            <if test="modifyuserid != null">modifyUserId,</if>
+            <if test="modifyusername != null">modifyUserName,</if>
+            <if test="isdel != null">isDel,</if>
+            <if test="version != null">version,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">#{name},</if>
+            <if test="companytypeid != null">#{companytypeid},</if>
+            <if test="membertype != null">#{membertype},</if>
+            <if test="level != null">#{level},</if>
+            <if test="provinceid != null">#{provinceid},</if>
+            <if test="cityid != null">#{cityid},</if>
+            <if test="address != null">#{address},</if>
+            <if test="creditcode != null">#{creditcode},</if>
+            <if test="cerificateattachment1 != null">#{cerificateattachment1},</if>
+            <if test="cerificateattachment2 != null">#{cerificateattachment2},</if>
+            <if test="email != null">#{email},</if>
+            <if test="adminaccountid != null">#{adminaccountid},</if>
+            <if test="status != null">#{status},</if>
+            <if test="issendbl != null">#{issendbl},</if>
+            <if test="isreceive != null">#{isreceive},</if>
+            <if test="isenableseal != null">#{isenableseal},</if>
+            <if test="createdate != null">#{createdate},</if>
+            <if test="createuserid != null">#{createuserid},</if>
+            <if test="createusername != null">#{createusername},</if>
+            <if test="modifydate != null">#{modifydate},</if>
+            <if test="modifyuserid != null">#{modifyuserid},</if>
+            <if test="modifyusername != null">#{modifyusername},</if>
+            <if test="isdel != null">#{isdel},</if>
+            <if test="version != null">#{version},</if>
+         </trim>
+    </insert>
+
+   <update id="updateCompany" parameterType="Company">
+        UPDATE COMPANY A
+        <trim prefix="SET" suffixOverrides=",">
+         	<if test="id != null  and id != ''">  A.id=#{id},</if>
+            <if test="name != null  and name != ''">  A.name=#{name},</if>
+            <if test="companytypeid != null and companytypeid != ''">  A.companyTypeId = #{companytypeid},</if>
+            <if test="membertype != null and membertype != ''"> A.memberType = #{membertype},</if>
+            <if test="level != null  and level != ''"> A.level = #{level},</if>
+            <if test="phone != null  and phone != ''"> A.phone = #{phone},</if>
+            <if test="countryName != null  and countryName != ''">  B.name  like concat('%', #{countryName}, '%'),</if>
+            <if test="provinceId != null  and provinceId != ''"> A.provinceId = #{provinceId},</if>
+            <if test="provinceName != null  and provinceName != ''"> C.name  like concat('%', #{provinceName}, '%'),</if> 
+            <if test="cityId != null  and cityId != ''"> A.cityId = #{cityId},</if>
+            <if test="cityName != null  and cityName != ''"> D.name  like concat('%', #{cityName}, '%'),</if>
+            <if test="address != null  and address != ''">  A.address = #{address},</if>
+            <if test="creditcode != null  and creditcode != ''">  A.creditCode = #{creditcode},</if>
+            <if test="cerificateattachment1 != null  and cerificateattachment1 != ''">  A.cerificateAttachment1 = #{cerificateattachment1},</if>
+            <if test="cerificateattachment2 != null  and cerificateattachment2 != ''">  A.cerificateAttachment2 = #{cerificateattachment2},</if>
+            <if test="email != null  and email != ''">  A.email = #{email},</if>
+            <if test="adminaccountid != null ">  A.adminAccountId = #{adminaccountid},</if>
+            <if test="status != null ">  A.status = #{status},</if>
+            <if test="issendbl != null "> A.isSendBl = #{issendbl},</if>
+            <if test="isreceive != null "> A.isReceive = #{isreceive},</if>
+            <if test="isenableseal != null "> A.isEnableSeal = #{isenableseal},</if>
+            modifyDate = NOW(),
+            <if test="modifyuserid != null">A.modifyUserId = #{modifyuserid},</if>
+            <if test="modifyusername != null">A.modifyUserName = #{modifyusername},</if>
+            version = version + 1,
+            <if test="Sealfile1 != null and Sealfile1!= ''">Sealfile1 = #{Sealfile1}</if>
+            <if test="Sealfile2 != null and Sealfile2!= ''"> Sealfile2 = #{Sealfile2}</if>      	
+        </trim>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectCompanySameNumber" parameterType="Seal" resultType="int">
+		SELECT
+		  COUNT(0)
+		FROM company A
+		WHERE
+            A.name = #{name}
+            <if test="id != null  and id != '' "> AND id <![CDATA[ <> ]]> #{id} </if>
+	</select>
+	
+    <update id="deleteCompanyByIds" parameterType="String">
+        UPDATE company
+            isDel = 1,
+            version = version + 1
+        WHERE id in 
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+    
+</mapper>

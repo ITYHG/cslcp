@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhisen.cslcp.dao.CuslevelMapper">
+    
+    <resultMap type="Cuslevel" id="CuslevelResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="low"    column="low"    />
+        <result property="hi"    column="hi"    />
+        <result property="createdate"    column="createDate"    />
+        <result property="createuserid"    column="createUserId"    />
+        <result property="createusername"    column="createUserName"    />
+        <result property="modifydate"    column="modifyDate"    />
+        <result property="modifyuserid"    column="modifyUserId"    />
+        <result property="modifyusername"    column="modifyUserName"    />
+        <result property="isdel"    column="isDel"    />
+        <result property="version"    column="version"    />
+    </resultMap>
+
+    <sql id="selectCuslevelVo">
+        SELECT 	id AS id, 
+        		name AS name,
+         		low AS low,
+          		hi AS hi, 
+          		createDate AS createDate,
+           		createUserId AS createUserId, 
+           		createUserName AS createUserName,
+            	modifyDate AS modifyDate, 
+           		modifyUserId AS modifyUserId, 
+            	modifyUserName AS modifyUserName, 
+            	isDel AS isDel,
+            	version AS version
+         FROM cuslevel
+    </sql>
+
+    <select id="selectCuslevelPageNumber" parameterType="Cuslevel"  resultType="int">
+		SELECT
+		  COUNT(0)
+		FROM cuslevel
+		WHERE isDel = 0 
+		<if test="name != null  and name != ''"> AND name LIKE CONCAT('%', #{name}, '%')</if>
+	</select>
+
+    <select id="selectCuslevelList" parameterType="Cuslevel" resultMap="CuslevelResult">
+        <include refid="selectCuslevelVo"/>
+        <where>
+        AND isDel = 0
+        <if test="name != null  and name != ''"> AND name LIKE CONCAT('%', #{name}, '%')</if>
+        </where>
+        ORDER BY modifyDate DESC
+        <if test="excelFlag != 1 "> LIMIT #{limit}, #{pageSize}; </if>
+    </select>
+    
+    <select id="selectCuslevelNameNumber" parameterType="Cuslevel"
+		resultType="int">
+		SELECT
+		  COUNT(0)
+		FROM cuslevel
+		WHERE name = #{name}
+		<if test="id != null  and id != '' "> AND id <![CDATA[ <> ]]> #{id} </if>
+	</select>
+	
+	<select id="selectCuslevelLowNumber" parameterType="Cuslevel"
+		resultType="int">
+		SELECT count(0) 
+		FROM cuslevel 
+		WHERE ( low = #{low} 
+		OR (
+		    low <![CDATA[ < ]]> #{low} 
+		     AND hi <![CDATA[ > ]]> #{low} 
+		)
+		OR hi = #{low}
+		) 
+		AND isdel = 0 
+		<if test="id != null  and id != '' "> AND id <![CDATA[ <> ]]> #{id} </if>
+	</select>
+	
+	<select id="selectCuslevelHiNumber" parameterType="Cuslevel"
+		resultType="int">
+		SELECT count(0) 
+		FROM cuslevel 
+		WHERE ( hi = #{hi}
+		OR (
+		    low <![CDATA[ > ]]> #{low} 
+		    AND   low <![CDATA[ < ]]> #{hi} 
+		) 
+		OR low = #{hi}
+		)
+		AND isdel = 0 
+		<if test="id != null  and id != '' "> AND id <![CDATA[ <> ]]> #{id} </if>
+	</select>
+   
+        
+    <insert id="insertCuslevel" parameterType="Cuslevel" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO cuslevel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">name,</if>
+            <if test="low != null">low,</if>
+            <if test="hi != null">hi,</if>
+            createDate,
+            <if test="createuserid != null">createUserId,</if>
+            <if test="createusername != null">createUserName,</if>
+            modifyDate,
+            <if test="modifyuserid != null">modifyUserId,</if>
+            <if test="modifyusername != null">modifyUserName,</if>
+            isDel,
+            version
+         </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="name != null">#{name},</if>
+            <if test="low != null">#{low},</if>
+            <if test="hi != null">#{hi},</if>
+            NOW(),
+            <if test="createuserid != null">#{createuserid},</if>
+            <if test="createusername != null">#{createusername},</if>
+            NOW(),
+            <if test="modifyuserid != null">#{modifyuserid},</if>
+            <if test="modifyusername != null">#{modifyusername},</if>
+            0,
+            0
+         </trim>
+    </insert>
+
+    <update id="updateCuslevel" parameterType="Cuslevel">
+        UPDATE cuslevel
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="low != null">low = #{low},</if>
+            <if test="hi != null">hi = #{hi},</if>
+            modifyDate =NOW(),
+            <if test="modifyuserid != null">modifyUserId = #{modifyuserid},</if>
+            <if test="modifyusername != null">modifyUserName = #{modifyusername},</if>
+            version = version + 1
+        </trim>
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteCuslevelByIds" parameterType="String">
+        UPDATE cuslevel
+        SET isDel =1 ,
+            modifyDate =NOW(),
+            version = version + 1
+        WHERE id IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+    
+    
+</mapper>

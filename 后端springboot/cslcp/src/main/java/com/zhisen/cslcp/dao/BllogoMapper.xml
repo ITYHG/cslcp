@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhisen.cslcp.dao.BllogoMapper">
+    
+    <resultMap type="Bllogo" id="BllogoResult">
+        <result property="id"    column="id"    />
+        <result property="companyid"    column="companyId"    />
+        <result property="companyName"    column="companyName"    />       
+        <result property="name"    column="name"    />
+        <result property="file"    column="file"    />
+        <result property="uploadday"    column="uploadDay"    />
+        <result property="isenable"    column="isEnable"    />
+        <result property="confirmstatus"    column="confirmStatus"    />
+         <result property="comments"    column="comments"    />
+        <result property="createuseraccount"    column="createUserAccount"    />
+        <result property="createusername"    column="createUserName"    />
+        <result property="createtime"    column="createTime"    />
+        <result property="modifieruseraccount"    column="modifierUserAccount"    />
+        <result property="modifierusername"    column="modifierUserName"    />
+        <result property="modifytime"    column="modifyTime"    />
+        <result property="version"    column="version"    />
+    </resultMap>
+
+    <sql id="selectBllogoVo">
+       	SELECT 	A.id AS id, 
+		        A.companyId AS companyId,
+		        B.name AS companyName,
+		        A.name AS name, 
+		        A.file AS file, 
+		        A.uploadDay AS uploadDay,
+		        A.isEnable AS isEnable, 
+		        A.confirmStatus AS confirmStatus,
+		        A.comments		AS comments,
+		        A.createUserAccount AS createUserAccount,
+		        A.createUserName AS createUserName, 
+		        A.createTime AS createTime, 
+		        A.modifierUserAccount AS modifierUserAccount, 
+		      	A.modifierUserName AS modifierUserName, 
+		        A.modifyTime AS modifyTime, 
+		        A.version AS version
+		from bllogo A
+		LEFT JOIN company B ON A.companyId = B.id  
+    </sql>
+    <select id="selectBllogoList" parameterType="Bllogo" resultMap="BllogoResult">
+        <include refid="selectBllogoVo"/>
+       <where>  
+            <if test="companyid != 1 and companyid != null "> AND A.companyId = #{companyid}</if>
+            <if test="name != null  and name != ''"> AND A.name like concat('%', #{name}, '%')</if>
+            <if test="companyName != null  and companyName != ''"> AND B.name LIKE concat('%', #{companyName}, '%')</if>
+            <if test="file != null  and file != ''"> AND A.file = #{file}</if>
+            <if test="uploadday != null and uploadday != '' "> AND A.uploadDay = #{uploadday}</if>
+            <if test="isenable != null "> AND A.isEnable = #{isenable}</if>
+            <if test="confirmstatus != null "> AND A.confirmStatus = #{confirmstatus}</if>
+        </where>
+        ORDER BY modifyTime DESC
+		<if test="excelFlag != 1 "> LIMIT #{limit}, #{pageSize}; </if>
+    </select>
+    
+    <select id="selectBllogoSameNumber" parameterType="Seal" resultType="int">
+		SELECT
+		  COUNT(0)
+		FROM bllogo A
+        LEFT JOIN company B ON A.companyId = B.id  
+		WHERE
+		(A.NAME = #{name} 	OR A.isEnable = 2 )
+            AND A.companyId = #{companyid}
+
+            <if test="id != null  and id != '' "> AND A.id <![CDATA[ <> ]]> #{id} </if>
+	</select>
+	    <select id="selectBllogoSame" parameterType="Seal" resultType="int">
+		SELECT
+		  COUNT(0)
+		FROM bllogo A
+        LEFT JOIN company B ON A.companyId = B.id  
+		WHERE
+            A.name = #{name}
+            AND A.companyId = #{companyid}
+	</select>
+	
+	<select id="selectBllogoConfNumber"  parameterType="String" resultType="int">
+		
+		SELECT
+		  COUNT(0)
+		FROM bllogo A
+		LEFT JOIN company B ON A.companyId = B.id  
+		WHERE confirmstatus <![CDATA[ > ]]> 1
+		AND A.id IN 
+		<foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+	</select>
+	  
+    <select id="selectBllogoPageNumber" parameterType="Bllogo" resultType="int">
+		SELECT
+		  COUNT(0)
+		FROM bllogo A
+		LEFT JOIN company B ON A.companyId = B.id  
+		<where>  
+            <if test="companyid != 1 and companyid != null"> AND A.companyId = #{companyid}</if>
+            <if test="name != null  and name != ''"> AND A.name like concat('%', #{name}, '%')</if>
+            <if test="companyName != null  and companyName != ''"> and B.name like concat('%', #{companyName}, '%')</if>
+            <if test="file != null  and file != ''"> AND A.file = #{file}</if>
+            <if test="uploadday != null and uploadday != '' "> AND A.uploadDay = #{uploadday}</if>
+            <if test="isenable != null "> AND A.isEnable = #{isenable}</if>
+            <if test="confirmstatus != null "> AND A.confirmStatus = #{confirmstatus}</if>
+        </where>
+	</select>
+        
+    <insert id="insertBllogo" parameterType="Bllogo" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO bllogo
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="companyid != null ">companyId,</if>
+            <if test="name != null">name,</if>
+            <if test="file != null">file,</if>
+            uploadDay,
+            isEnable,
+            <if test="isenable != null">isEnable,</if>
+            confirmStatus,
+            <if test="createuseraccount != null">createUserAccount,</if>
+            <if test="createusername != null">createUserName,</if>
+            createTime,
+            <if test="modifieruseraccount != null">modifierUserAccount,</if>
+            <if test="modifierusername != null">modifierUserName,</if>
+            modifyTime,
+            version,
+         </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="companyid != null ">#{companyid},</if>
+            <if test="name != null">#{name},</if>
+            <if test="file != null">#{file},</if>
+            NOW(),
+            1,
+            <if test="isenable != null">#{isenable},</if>
+            1,
+            <if test="createuseraccount != null">#{createuseraccount},</if>
+            <if test="createusername != null">#{createusername},</if>
+            NOW(),
+            <if test="modifieruseraccount != null">#{modifieruseraccount},</if>
+            <if test="modifierusername != null">#{modifierusername},</if>
+            NOW(),
+            0
+         </trim>
+    </insert>
+
+    <update id="updateBllogo" parameterType="Bllogo">
+        UPDATE bllogo A
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="companyid != 1 and companyid != null ">A.companyId = #{companyid},</if>
+            <if test="name != null">A.name = #{name},</if>
+            <if test="file != null">A.file = #{file},</if>
+            uploadday = NOW(),
+            <if test="isenable != null">A.isEnable = #{isenable},</if>
+            <if test="confirmstatus != null">A.confirmStatus = #{confirmstatus},</if>
+            <if test="comments != null">A.comments = #{comments},</if>
+            <if test="modifieruseraccount != null">A.modifierUserAccount = #{modifieruseraccount},</if>
+            <if test="modifierusername != null">A.modifierUserName = #{modifierusername},</if>
+            modifyTime = NOW(),
+           	version = version + 1 
+        </trim>
+        WHERE A.id = #{id}
+        AND version = #{version}
+    </update>
+    
+ 	<delete id="deleteBllogoByIds" parameterType="String">
+        DELETE FROM bllogo WHERE id in 
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>
